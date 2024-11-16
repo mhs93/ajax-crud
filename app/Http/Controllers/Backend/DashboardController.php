@@ -11,34 +11,38 @@ use function Symfony\Component\Routing\Matcher\match;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request){
-        $type = $request->type ?? 'category';
-        $data = match($type){
-            'category'      => $this->getCategory(),
-            'sub_category'  => $this->getSubCategories(),
-            'product'       => $this->getProducts(),
-            'default'       => $this->getCategory(),
-        };
+    public function index(Request $request)
+    {
+        $type = $request->get('type', 'category');
 
-        return view('dashboard',compact('data'));
+        $data = [];
+
+        switch ($type) {
+            case 'category':
+                $data['categories'] = $this->getCategory();
+                break;
+            case 'sub_category':
+                $data['sub_categories'] = $this->getSubCategories();
+                break;
+            case 'product':
+                $data['products'] = $this->getProducts();
+                break;
+        }
+        return view('dashboard', array_merge($data, compact('type')));
     }
 
     public function getCategory()
     {
-        $categories = Category::all();
-        return ['categories' => $categories];
+        return Category::all();
     }
 
     public function getSubCategories()
     {
-        $sub_categories = SubCategory::all();
-        return ['sub_categories' => $sub_categories];
+        return SubCategory::all();
     }
 
     public function getProducts()
     {
-        $products = Product::all();
-
-        return ['products' => $products];
+        return Product::all();
     }
 }
